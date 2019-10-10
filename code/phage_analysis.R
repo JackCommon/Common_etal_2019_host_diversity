@@ -154,7 +154,7 @@ anova(m3, type="marginal")
 
 #### ---- Figures ----####
 
-# Set up target dataframe to store modes and HPDs
+# Set up target dataframe to store means and CIs
 m3 <- lmer(log(Titre+1)~Treatment + Timepoint+(1|Replicate), data=phage)
 
 coefs <- data.frame(term = factor(10), 
@@ -201,6 +201,8 @@ coefs$h.67 <- confint(m3, parm="beta_", level=0.67) %>%
   slice(1:10) %>% 
   select("83.5 %") %>% 
   .[1:10,1]
+
+write.csv(coefs, "./summary_data/phage_model_coefs.csv", row.names = F)
 
 coefs$term %<>% relevel(ref="3 dpi")
 coefs$term %<>% relevel(ref="2 dpi")

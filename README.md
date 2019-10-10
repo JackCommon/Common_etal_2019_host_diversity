@@ -1,5 +1,7 @@
 # Common, Walker-Sunderhauf, van Houte & Westra (2019)
 
+https://www.biorxiv.org/content/10.1101/774349v1.full
+
 ## Abstract
 
 Diversity in host resistance often associates with reduced pathogen spread. This may result from limitation of pathogen evolution, and reduced pathogen reproduction due to the dilution of focal hosts. Theory and experiments on bacteria-phage interactions have shown that genetic diversity of the bacterial adaptive immune system can limit phage evolution to overcome resistance. Here we explore how immune diversity impacts the spread of phage when they can overcome a resistance allele, and whether immune diversity affects the evolution of the phage to increase its host range. We show that higher diversity benefits both susceptible and resistant bacteria by limiting the spread of the phage, and this is linked to a reduced probability that phage acquire further mutations to overcome other resistance alleles. These data highlight the tight link between the epidemiological and evolutionary consequences of host resistance allele diversity and their key consequences for host-pathogen interactions. 

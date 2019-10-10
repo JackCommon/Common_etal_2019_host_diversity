@@ -99,6 +99,12 @@ d.CRISPR <- d %>%
   na.exclude %>% 
   filter(Strain=="rCRISPR", Timepoint!="0")
 
+## Use this dataframe to analyse just the polyclonal treatments
+# d.CRISPR <- d %>% 
+#   na.exclude %>% 
+#   filter(Strain=="rCRISPR", Timepoint!="0", 
+#          Treatment %in% c("3-clone", "6-clone", "12-clone", "24-clone", "24-clone_control"))
+
 d.CRISPR$Treatment %<>% relevel(ref="24-clone_control")
 d.CRISPR$Treatment %<>% relevel(ref="1-clone_control")
 d.CRISPR$Treatment %<>% relevel(ref="24-clone")
@@ -125,7 +131,7 @@ plot(m2)
 plot(m3)
 plot(m4)
 
-anova(m3, type="marginal")
+anova(m4, type="marginal")
 
 summary(m1)
 confint(m1, parm="beta_", level=0.95, method="boot")
@@ -358,6 +364,12 @@ d.BIM <- d %>%
   na.exclude %>% 
   filter(Strain=="rBIM", Timepoint!="0")
 
+## Use this dataframe to analyse just the polyclonal treatments
+# d.BIM <- d %>% 
+#   na.exclude %>% 
+#   filter(Strain=="rBIM", Timepoint!="0", 
+#          Treatment %in% c("3-clone", "6-clone", "12-clone", "24-clone", "24-clone_control"))
+
 d.BIM$Treatment %<>% relevel(ref="24-clone_control")
 d.BIM$Treatment %<>% relevel(ref="1-clone_control")
 d.BIM$Treatment %<>% relevel(ref="24-clone")
@@ -389,12 +401,6 @@ anova(m3, type="marginal")
 summary(m1)
 confint(m1, parm="beta_", method="boot")
 ggcoefstats(m3)
-
-predict.lm(m4, d.BIM, type="response") %>% 
-  unique
-
-
-
 
 #### ---- BIM: Extract model coefficients and CIs ---- ####
 d.BIM$Treatment %<>% relevel(ref="24-clone_control")

@@ -1,4 +1,7 @@
 #### phage_analysis.R by Jack Common 
+#### Code to generate figures that display the raw phage data, and also conduct
+#### statistical analysis (using GLMMs) of how titre changes over time and between
+#### CRISPR diversity treatments
 
 rm(list=ls())
 options(show.signif.stars = F)

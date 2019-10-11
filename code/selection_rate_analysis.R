@@ -1,4 +1,8 @@
 #### selection_rate_analysis.R by Jack Common
+#### Code to generate figures that display the raw selection rate data, conduct
+#### statistical analysis (using GLMMs) of how selection rate changes over time and between
+#### CRISPR diversity treatments, and generate figures that display the means predicted from
+#### those models
 
 rm(list=ls())
 options(show.signif.stars = F)

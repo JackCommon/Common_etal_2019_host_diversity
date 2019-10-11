@@ -1,4 +1,8 @@
 ##### phage_evolution_analysis.R by Jack Common
+#### This performs the analysis of the binary phage evolution data. Bayesian GLMMs are used
+#### to generate analyses and figures used in the manuscript, as conversion problems (due to all zeros
+#### in the 24-clone treatments) in lme4 models mean they are pretty useless. I show these models here
+#### so that hopefully you can see they don't work usefully!
 
 rm(list=ls())
 options(show.signif.stars = F)

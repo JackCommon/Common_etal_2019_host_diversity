@@ -136,7 +136,7 @@ host_density_fig <- ggplot(aes(y=CFU+1, x=Timepoint, group=Replicate_2),
   scale_colour_manual(values=pal,
                       labels=c("Surface mutant\n(PA14 ∆pilA)", "Resistant\nCRISPR clones",
                                "Susceptible\nCRISPR clones"),
-                      name=c("Host type"))+
+                      name=c("Host immunity"))+
    NULL
 # quartz()
 # last_plot()

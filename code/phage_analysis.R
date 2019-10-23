@@ -10,7 +10,6 @@ options(show.signif.stars = F)
 library(tidyverse)
 library(magrittr)
 library(scales)
-library(ggstatsplot)
 library(lme4)
 library(cowplot)
 library(lmerTest)
@@ -114,7 +113,7 @@ phage_plot <- ggplot(aes(y=log10(Titre+1), x=Timepoint, group=Replicate), data=p
   geom_hline(yintercept = 100, linetype=2)+
   facet_wrap(~Treatment, labeller = treatment_labeller)+
   
-  labs(x="Days post-infection", y=expression(bold("Pfu ml"*{}^{-1}*"")))+
+  labs(x="Days post-infection", y=expression(bold("Phage density (Pfu ml"*{}^{-1}*")")))+
   #ggtitle("Density of phage")+
   
   cowplot::theme_cowplot()+
@@ -132,8 +131,8 @@ phage_plot <- ggplot(aes(y=log10(Titre+1), x=Timepoint, group=Replicate), data=p
 
 #
 
-ggsave("Figure_1.png", phage_plot, path="./figs/", 
-       device="png", dpi=600,width=28, height = 20, units = c("cm"))
+#ggsave("Figure_1.png", phage_plot, path="./figs/", 
+#       device="png", dpi=600,width=28, height = 20, units = c("cm"))
 
 #### ---- Models ---- ####
 
@@ -153,7 +152,7 @@ plot(m3)
 plot(m4)
 
 summary(m3)
-anova(m3, type="marginal")
+anova(m4, type="marginal")
 
 #### ---- Figures ----####
 
@@ -205,7 +204,7 @@ coefs$h.67 <- confint(m3, parm="beta_", level=0.67) %>%
   select("83.5 %") %>% 
   .[1:10,1]
 
-write.csv(coefs, "./summary_data/phage_model_coefs.csv", row.names = F)
+# write.csv(coefs, "./summary_data/phage_model_coefs.csv", row.names = F)
 
 coefs$term %<>% relevel(ref="3 dpi")
 coefs$term %<>% relevel(ref="2 dpi")
@@ -228,13 +227,19 @@ p1 <- ggplot(aes(y=beta, x=term), data=coefs)+
   geom_hline(yintercept=0, linetype=2)+
   coord_flip()+
   cowplot::theme_cowplot()+
-  labs(y=expression(bold("ln(pfu ml"*{}^{-1}*")")), x="Fixed effect level")+ 
+  labs(y=expression(bold("Phage density (ln[pfu ml"*{}^{-1}*"])")), x="Fixed effect level")+ 
   scale_y_continuous(breaks=seq(-14, 20, 2))+
   theme(axis.text = element_text(size=12),
         axis.title = element_text(face="bold", size=16))+
   NULL
 p1
 
-ggsave("Figure_S2.png", p1, path="./figs/", 
-       device="png", dpi=600,width=20, height=12, units=c("cm"))
+#ggsave("Figure_S2.png", p1, path="./figs/", 
+#       device="png", dpi=600,width=20, height=12, units=c("cm"))
 
+Figure1 <- plot_grid(phage_plot, p1, labels = c("A", "B"), label_size = 20,
+                     ncol=1, nrow=2, rel_heights = c(1.5, 1))
+last_plot()
+
+ggsave("Figure_1.png", Figure1, path="./figs/",
+      device="png", dpi=600, width=23, height=29.7, units=c("cm"))

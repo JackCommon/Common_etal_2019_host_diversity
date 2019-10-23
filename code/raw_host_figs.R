@@ -103,6 +103,9 @@ host$Replicate_2 %<>% as.factor()
 
 
 #### --- Figures ---- ####
+library(wesanderson)
+pal <- wes_palette("IsleofDogs1", 3)
+
 host_density_fig <- ggplot(aes(y=CFU+1, x=Timepoint, group=Replicate_2), 
                          data=host)+
   
@@ -116,16 +119,27 @@ host_density_fig <- ggplot(aes(y=CFU+1, x=Timepoint, group=Replicate_2),
   cowplot::theme_cowplot()+
   theme(plot.title = element_text(face="bold", hjust=0, size = 16),
         axis.title = element_text(face="bold", size=16),
-        strip.text = element_text(face='bold', size=14))+
+        strip.text = element_text(face='bold', size=14),
+        axis.text = element_text(size=12),
+        legend.text = element_text(size=12),
+        legend.title = element_text(face="bold", size=16),
+        legend.title.align = 0.5,
+        legend.key.height = unit(1, "cm"),
+        legend.key.width = unit(1, "cm"),
+        legend.key = element_rect(fill="grey95"))+
   
   scale_y_continuous(breaks=c(seq(0,12,1)))+
   #coord_cartesian(ylim=c(0, 12))+
   scale_y_continuous(trans = 'log10',
                      breaks = trans_breaks('log10', function(x) 10^x),
                      labels = trans_format('log10', math_format(10^.x)))+
-  # #scale_colour_manual(values=c("black", "blue"))+
-  # 
-  theme(axis.text = element_text(size=12))+
-  theme(legend.text = element_text(size=12))+
+  scale_colour_manual(values=pal,
+                      labels=c("Surface mutant\n(PA14 ∆pilA)", "Resistant\nCRISPR clones",
+                               "Susceptible\nCRISPR clones"),
+                      name=c("Host type"))+
    NULL
-last_plot()
+# quartz()
+# last_plot()
+
+ggsave("Figure_S2.png", host_density_fig, path="./figs/", 
+              device="png", dpi=600, width=28, height = 20, units = c("cm"))

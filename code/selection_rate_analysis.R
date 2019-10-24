@@ -98,6 +98,75 @@ d$Treatment %<>% relevel(ref="3-clone")
 d$Treatment %<>% relevel(ref="1-clone_control")
 d$Treatment %<>% relevel(ref="1-clone")
 
+#### ---- CRISPR boxplot ---- ####
+pd <- position_dodge(0.5)
+library(wesanderson)
+pal <- wes_palette("IsleofDogs1", 3)
+
+CRISPR_fitness_plots <- ggplot(aes(x=Treatment, y=r), 
+                               data=filter(d, Strain=="rCRISPR", Timepoint!="0"))+
+  geom_boxplot(width=0.5, outlier.shape = NA, aes(colour=Timepoint), position = pd)+
+  geom_point(aes(colour=Timepoint), alpha=0.5, pch=21, position = pd)+
+  geom_hline(yintercept=0, linetype=2, size=1)+
+  #stat_summary(fun.y="mean", geom="point", colour="red")+
+  #facet_wrap(~Timepoint, scales="free", labeller = timepoint_labeller, ncol=2)+
+  labs(y="Selection rate (day -1)\nof resistant CRISPR clones", x="CRISPR allele diversity")+
+  scale_x_discrete(labels = treatment_list)+
+  scale_colour_manual(values=pal,
+                      name=c("Days\npost-infection"))+
+  theme_cowplot()+
+  theme(axis.title = element_text(face="bold", size=16),
+        panel.grid.major = element_line(colour="lightgrey", size=.25),
+        strip.text = element_text(face="bold"),
+        axis.text.x = element_text(size=10),
+        legend.text = element_text(size=12),
+        legend.title = element_text(face="bold", size=16),
+        legend.title.align = 0.5,
+        legend.key.height = unit(1, "cm"),
+        legend.key.width = unit(1, "cm"),
+        legend.key = element_rect(fill="grey95"))+
+  NULL
+
+last_plot()
+
+#### ---- BIM boxplot ---- ####
+BIM_fitness_plots <- ggplot(aes(x=Treatment, y=r), 
+                            data=filter(d, Strain=="rBIM", Timepoint!="0",
+                                        Treatment%in%c("3-clone", "6-clone", "12-clone",
+                                                       "24-clone", "24-clone_control")))+
+  geom_boxplot(aes(colour=Timepoint), width=0.5, outlier.shape = NA, position = pd)+
+  geom_point(aes(colour=Timepoint), alpha=0.5, pch=21, position=pd)+
+  geom_hline(yintercept=0, linetype=2, size=1)+
+  #stat_summary(fun.y="mean", geom="point", colour="red")+
+  labs(y="Selection rate (day -1)\nof susceptible CRISPR clone", x="CRISPR allele diversity")+
+  scale_x_discrete(labels= treatment_list[3:7])+
+  scale_colour_manual(values=pal,
+                      name=c("Days\npost-infection"))+
+  theme_cowplot()+
+  theme(axis.title = element_text(face="bold", size=16),
+        panel.grid.major = element_line(colour="lightgrey", size=.25),
+        strip.text = element_text(face="bold"),
+        axis.text.x = element_text(size=10),
+        legend.text = element_text(size=12),
+        legend.title = element_text(face="bold", size=16),
+        legend.title.align = 0.5,
+        legend.key.height = unit(1, "cm"),
+        legend.key.width = unit(1, "cm"),
+        legend.key = element_rect(fill="grey95"))+
+  NULL
+last_plot()
+
+FigS2 <- plot_grid(CRISPR_fitness_plots+
+                     theme(legend.position = "none"), 
+                   BIM_fitness_plots, ncol=1, 
+                   labels = c("A", "B"), label_size = 20, label_colour = "blue")
+
+
+last_plot()
+ggsave("Figure_S2.png", FigS2, path="./figs/",
+       device="png",dpi=600, width=18, height = 20, units=c("cm"))
+
+
 #### ---- lme4 CRISPR models ---- ####
 d.CRISPR <- d %>% 
   na.exclude %>% 
@@ -743,4 +812,102 @@ Fig_3 <- plot_grid(CRISPR.plot+xlab("")+theme(axis.text.x = element_blank()),
 ggsave("Figure 3.png", Fig_3, path="./figs/", device="png",
                dpi=600, width=28, height=25, units=c("cm"))
 
+
+
+#### --- Models with Time as a continuous variable --- ####
+# A reviewer after the initial submission suggested that Time (that is, dpi) be
+# treated as a continuous variable in order to provide a clearer indication of
+# trends by presenting a directional regression slope, rather than a non-directional
+# F-statistic
+
+## Data
+d.cont <- read.csv("./original_data/selection rates.csv", header=T)  %>% 
+  select(Treatment, Timepoint, Replicate, BIM_mix, Escape_phage, Tracked_BIM,
+         rCRISPR, rBIM) %>% 
+  gather("rCRISPR", "rBIM", key="Strain", value="r", factor_key = T)
+
+d.cont$Replicate %<>% as.factor
+d.cont$Tracked_BIM %<>% as.factor()
+d.cont$Escape_phage %<>% as.factor
+
+# Relevel the datasets so things make sense
+d$Treatment %<>% relevel(ref="24-clone_control")
+d$Treatment %<>% relevel(ref="24-clone")
+d$Treatment %<>% relevel(ref="12-clone")
+d$Treatment %<>% relevel(ref="6-clone")
+d$Treatment %<>% relevel(ref="3-clone")
+d$Treatment %<>% relevel(ref="1-clone_control")
+d$Treatment %<>% relevel(ref="1-clone")
+
+# CRISPR model 
+# d.cont.CRISPR <- d.cont %>% 
+#   na.exclude %>% 
+#   filter(Strain=="rCRISPR", Timepoint!="0")
+
+# Use this dataframe to analyse just the polyclonal treatments
+d.cont.CRISPR <- d.cont %>%
+  na.exclude %>%
+  filter(Strain=="rCRISPR", Timepoint!="0",
+         Treatment %in% c("3-clone", "6-clone", "12-clone", "24-clone", "24-clone_control"))
+
+d.cont.CRISPR$Treatment %<>% relevel(ref="24-clone_control")
+d.cont.CRISPR$Treatment %<>% relevel(ref="1-clone_control")
+d.cont.CRISPR$Treatment %<>% relevel(ref="24-clone")
+d.cont.CRISPR$Treatment %<>% relevel(ref="12-clone")
+d.cont.CRISPR$Treatment %<>% relevel(ref="6-clone")
+d.cont.CRISPR$Treatment %<>% relevel(ref="3-clone")
+d.cont.CRISPR$Treatment %<>% relevel(ref="1-clone")
+
+m1 <- lmer(r~Treatment + (1|Replicate), data=d.cont.CRISPR)
+m2 <- lmer(r~Timepoint + (1|Replicate), data=d.cont.CRISPR)
+m3 <- lmer(r~Treatment + Timepoint +(1|Replicate), data=d.cont.CRISPR)
+m4 <- lmer(r~Treatment * Timepoint + (1|Replicate), data=d.cont.CRISPR)
+
+AIC(m1, m2, m3, m4) %>% 
+  compare_AICs()
+
+plot(m1)
+plot(m2)
+plot(m3)
+plot(m4)
+
+anova(m3, type="marginal")
+summary(m2)
+confint(m2, parm="beta_", method="boot")
+
+# BIM model 
+# d.cont.BIM <- d.cont %>% 
+#   na.exclude %>% 
+#   filter(Strain=="rBIM", Timepoint!="0")
+
+# Use this dataframe to analyse just the polyclonal treatments
+d.cont.BIM <- d.cont %>%
+  na.exclude %>%
+  filter(Strain=="rBIM", Timepoint!="0",
+         Treatment %in% c("3-clone", "6-clone", "12-clone", "24-clone", "24-clone_control"))
+
+d.cont.BIM$Treatment %<>% relevel(ref="24-clone_control")
+d.cont.BIM$Treatment %<>% relevel(ref="1-clone_control")
+d.cont.BIM$Treatment %<>% relevel(ref="24-clone")
+d.cont.BIM$Treatment %<>% relevel(ref="12-clone")
+d.cont.BIM$Treatment %<>% relevel(ref="6-clone")
+d.cont.BIM$Treatment %<>% relevel(ref="3-clone")
+d.cont.BIM$Treatment %<>% relevel(ref="1-clone")
+
+m1 <- lmer(r~Treatment + (1|Replicate), data=d.cont.BIM)
+m2 <- lmer(r~Timepoint + (1|Replicate), data=d.cont.BIM)
+m3 <- lmer(r~Treatment + Timepoint +(1|Replicate), data=d.cont.BIM)
+m4 <- lmer(r~Treatment * Timepoint + (1|Replicate), data=d.cont.BIM)
+
+AIC(m1, m2, m3, m4) %>% 
+  compare_AICs()
+
+plot(m1)
+plot(m2)
+plot(m3)
+plot(m4)
+
+anova(m3, type="marginal")
+summary(m3)
+confint(m3, parm="beta_", method="boot")
 

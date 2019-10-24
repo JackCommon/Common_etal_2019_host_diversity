@@ -9,7 +9,6 @@ options(show.signif.stars = F)
 
 #### ---- Dependencies ---- ####
 library(scales)
-library(ggstatsplot)
 library(cowplot)
 library(ggplot2)
 library(plyr)
@@ -809,7 +808,7 @@ Fig_3 <- plot_grid(CRISPR.plot+xlab("")+theme(axis.text.x = element_blank()),
                    BIM.plot, nrow=2,
                    labels = c("A", "B"), label_size = 20)
 
-ggsave("Figure 3.png", Fig_3, path="./figs/", device="png",
+ggsave("Figure_3.png", Fig_3, path="./figs/", device="png",
                dpi=600, width=28, height=25, units=c("cm"))
 
 

@@ -187,6 +187,8 @@ preds <- d %>%
 
 pd <- position_dodge(0.5)
 
+write.csv(x = preds, file = "./summary_data/phage_evo_preds.csv", row.names = F)
+
 p <- ggplot(aes(x=Treatment, y=m4.means), data=preds)+
   labs(x="CRISPR allele diversity", y="Proportion of phage with\n expanded host range")+
   geom_errorbar(aes(ymin=m4.67.lower, ymax=m4.67.upper), 

@@ -11,11 +11,9 @@ options(show.signif.stars = F)
 library(tidyverse)
 library(magrittr)
 library(scales)
-library(ggstatsplot)
 library(lme4)
 library(cowplot)
 library(lmerTest)
-library(ggdark)
 
 #### ---- Functions ---- ####
 ## Compare AIC values for model fit

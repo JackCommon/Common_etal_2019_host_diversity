@@ -109,7 +109,7 @@ CRISPR_fitness_plots <- ggplot(aes(x=Treatment, y=r),
   geom_hline(yintercept=0, linetype=2, size=1)+
   #stat_summary(fun.y="mean", geom="point", colour="red")+
   #facet_wrap(~Timepoint, scales="free", labeller = timepoint_labeller, ncol=2)+
-  labs(y="Selection rate (day -1)\nof resistant CRISPR clones", x="CRISPR allele diversity")+
+  labs(y="Selection rate of\nresistant CRISPR clones", x="CRISPR allele diversity")+
   scale_x_discrete(labels = treatment_list)+
   scale_colour_manual(values=pal,
                       name=c("Days\npost-infection"))+
@@ -137,7 +137,7 @@ BIM_fitness_plots <- ggplot(aes(x=Treatment, y=r),
   geom_point(aes(colour=Timepoint), alpha=0.5, pch=21, position=pd)+
   geom_hline(yintercept=0, linetype=2, size=1)+
   #stat_summary(fun.y="mean", geom="point", colour="red")+
-  labs(y="Selection rate (day -1)\nof susceptible CRISPR clone", x="CRISPR allele diversity")+
+  labs(y="Selection rate of\nsusceptible CRISPR clone", x="CRISPR allele diversity")+
   scale_x_discrete(labels= treatment_list[3:7])+
   scale_colour_manual(values=pal,
                       name=c("Days\npost-infection"))+
@@ -155,14 +155,14 @@ BIM_fitness_plots <- ggplot(aes(x=Treatment, y=r),
   NULL
 last_plot()
 
-FigS2 <- plot_grid(CRISPR_fitness_plots+
+FigS3 <- plot_grid(CRISPR_fitness_plots+
                      theme(legend.position = "none"), 
                    BIM_fitness_plots, ncol=1, 
                    labels = c("A", "B"), label_size = 20, label_colour = "blue")
 
 
 last_plot()
-ggsave("Figure_S2.png", FigS2, path="./figs/",
+ggsave("Figure_S3.png", FigS2, path="./figs/",
        device="png",dpi=600, width=18, height = 20, units=c("cm"))
 
 

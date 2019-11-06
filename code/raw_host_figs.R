@@ -141,5 +141,5 @@ host_density_fig <- ggplot(aes(y=CFU+1, x=Timepoint, group=Replicate_2),
 # quartz()
 # last_plot()
 
-ggsave("Figure_S3.png", host_density_fig, path="./figs/", 
+ggsave("Figure_S4.png", host_density_fig, path="./figs/", 
               device="png", dpi=600, width=28, height = 20, units = c("cm"))

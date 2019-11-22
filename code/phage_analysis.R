@@ -42,8 +42,8 @@ treatment_names <- list(
     "6-clone" = "6-clone",
     "12-clone" = "12-clone",
     "24-clone" = "24-clone",
-    "1-clone_control" = "1-clone (ancestral phage)",
-    "24-clone_control" = "24-clone (ancestral phage)"
+    "1-clone_control" = "1-clone\n(ancestral phage)",
+    "24-clone_control" = "24-clone\n(ancestral phage)"
   )
   
 treatment_labeller <- function(variable, value) {
@@ -109,27 +109,30 @@ for(i in 1:length(data_original$w_BIM)){
 phage_plot <- ggplot(aes(y=log10(Titre+1), x=Timepoint, group=Replicate), data=phage)+
   
   #geom_point(stat='identity')+
-  geom_path(stat='identity')+
-  geom_hline(yintercept = 100, linetype=2)+
-  facet_wrap(~Treatment, labeller = treatment_labeller)+
+  geom_path(stat='identity', size=.3)+
+  geom_hline(yintercept = 100, linetype=2, size=.3)+
+  facet_wrap(~Treatment, labeller = treatment_labeller, scales = "free_x")+
   
   labs(x="Days post-infection", y=expression(bold("Phage density (Pfu ml"*{}^{-1}*")")))+
   #ggtitle("Density of phage")+
   
   cowplot::theme_cowplot()+
-  theme(plot.title = element_text(face="bold", hjust=0, size = 16),
-        axis.title = element_text(face="bold", size=16),
-        strip.text = element_text(face='bold', size=14, lineheight = 3))+
+  theme(plot.title = element_text(face="bold", hjust=0, size = 10),
+        axis.title = element_text(face="bold", size=10),
+        axis.text = element_text(size=8),
+        axis.text.x = element_text(margin=margin(0,0,0,0,"pt")),
+        legend.text = element_text(size=8),
+        strip.text.x = element_text(face='bold', size=8, margin=margin(1.6,0,1.6,0, "pt")),
+        strip.background = element_rect(fill="transparent", colour=NA))+
   
   coord_cartesian(ylim=c(0, 12))+
   scale_y_continuous(breaks=c(seq(0,12,2)),
                      labels=pfu_labels)+
-  
-  theme(axis.text = element_text(size=12))+
-  theme(legend.text = element_text(size=12))+
   NULL
 
 #
+
+last_plot()
 
 #ggsave("Figure_1.png", phage_plot, path="./figs/", 
 #       device="png", dpi=600,width=28, height = 20, units = c("cm"))
@@ -236,6 +239,7 @@ coefs$h.67 <- confint(m3, parm="beta_", level=0.67) %>%
   .[1:8,1]
 
 # write.csv(coefs, "./summary_data/phage_model_coefs.csv", row.names = F)
+coefs <- read.csv("./summary_data/phage_model_coefs.csv")
 
 coefs$term %<>% relevel(ref="Days post-infection")
 coefs$term %<>% relevel(ref="24-clone (ancestral phage)")
@@ -247,26 +251,28 @@ coefs$term %<>% relevel(ref="1-clone (ancestral phage)")
 coefs$term %<>% relevel(ref="Intercept")
 
 p1 <- ggplot(aes(y=beta, x=term), data=coefs)+
-  geom_errorbar(aes(ymin=l.67, ymax=h.67), width=0, size=4, alpha=0.5)+
-  geom_errorbar(aes(ymin=l.89, ymax=h.89), width=0, size=2, alpha=0.5)+
+  geom_errorbar(aes(ymin=l.67, ymax=h.67), width=0, size=3, alpha=0.5)+
+  geom_errorbar(aes(ymin=l.89, ymax=h.89), width=0, size=1.5, alpha=0.5)+
   geom_errorbar(aes(ymin=l.95, ymax=h.95), width=0)+
-  geom_point(fill="white", pch=21, colour="black", size=2)+
-  geom_hline(yintercept=0, linetype=2)+
+  geom_point(fill="white", pch=21, colour="black", size=1)+
+  geom_hline(yintercept=0, linetype=2, size=.4)+
   coord_flip()+
   cowplot::theme_cowplot()+
   labs(y=expression(bold("Phage density (ln[pfu ml"*{}^{-1}*"])")), x="Fixed effect level")+ 
   scale_y_continuous(breaks=seq(-14, 20, 2))+
-  theme(axis.text = element_text(size=12),
-        axis.title = element_text(face="bold", size=16))+
+  theme(#panel.grid.major = element_line(colour="lightgrey"),
+        axis.text = element_text(size=8),
+        axis.title = element_text(face="bold", size=10))+
   NULL
 p1
 
 #ggsave("Figure_S2.png", p1, path="./figs/", 
 #       device="png", dpi=600,width=20, height=12, units=c("cm"))
 
-Figure1 <- plot_grid(phage_plot, p1, labels = c("A", "B"), label_size = 20,
-                     ncol=1, nrow=2, rel_heights = c(1.5, 1))
-last_plot()
+#### --- Save fig ---- ####
+Figure1 <- plot_grid(phage_plot, p1, labels = c("A", "B"), label_size = 10,
+                     ncol=1, nrow=2, rel_heights = c(1.7, 1))
+# last_plot()
 
-ggsave("Figure_1.png", Figure1, path="./figs/",
-       device="png", dpi=600, width=23, height=29.7, units=c("cm"))
+ggsave("Figure_1.tiff", Figure1, path="./figs/", compression="lzw",
+       device="tiff", dpi=300, width=11, height=16, units=c("cm"))

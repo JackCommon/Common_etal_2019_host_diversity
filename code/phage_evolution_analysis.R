@@ -183,29 +183,39 @@ preds <- d %>%
          m4.67.lower, m4.67.upper) %>% 
   unique
 
+
+
+#write.csv(x = preds, file = "./summary_data/phage_evo_preds.csv", row.names = F)
+preds <- read.csv("./summary_data/phage_evo_preds.csv")
+preds$Treatment %<>% relevel(ref="24-clone")
+preds$Treatment %<>% relevel(ref="12-clone")
+preds$Treatment %<>% relevel(ref="6-clone")
+preds$Treatment %<>% relevel(ref="3-clone")
+
 pd <- position_dodge(0.5)
 
-write.csv(x = preds, file = "./summary_data/phage_evo_preds.csv", row.names = F)
-
 p <- ggplot(aes(x=Treatment, y=m4.means), data=preds)+
-  labs(x="CRISPR allele diversity", y="Proportion of phage with\n expanded host range")+
+  labs(x="CRISPR diversity", y="Proportion of phage with\n expanded host range")+
+  geom_jitter(aes(y=exp, x=Treatment), data=summarised,
+              width=0.1, pch=21, alpha=0.5, size=0.8)+
   geom_errorbar(aes(ymin=m4.67.lower, ymax=m4.67.upper), 
-                width=0, size=4, alpha=0.5, position=pd)+
+                width=0, size=3, alpha=0.5, position=pd)+
   geom_errorbar(aes(ymin=m4.89.lower, ymax=m4.89.upper), 
-                width=0, size=2, alpha=0.5, position=pd)+
+                width=0, size=1.5, alpha=0.5, position=pd)+
   geom_errorbar(aes(ymin=m4.95.lower, ymax=m4.95.upper), 
                 width=0, position=pd)+
   geom_point(aes(position=Treatment), pch=21, fill="white", 
-             colour="black", position=pd, size=2)+
-  facet_wrap(~Timepoint, labeller = timepoint_labeller)+
+             colour="black", position=pd, size=1.5)+
+  facet_wrap(~Timepoint, labeller = timepoint_labeller, nrow=2, scale="free_x")+
   cowplot::theme_cowplot()+
-  theme(axis.text = element_text(size=12),
-        axis.title = element_text(face="bold", size=16),
-        panel.grid.major = element_line(colour="lightgrey", size=.25),
-        strip.text = element_text(face="bold"))+
-  NULL
+  theme(axis.text = element_text(size=8),
+        axis.title = element_text(face="bold", size=12),
+        #panel.grid.major = element_line(colour="lightgrey", size=.25),
+        strip.text = element_text(face="bold", size=10),
+        strip.background = element_rect(fill="white"))+
+  NULL 
 
 p
 
-ggsave("Figure_2.png", p, path="./figs/", 
-       device='png', dpi=600, width=25, height=10, units=c("cm"))
+ggsave("Figure_2.tif", p, path="./figs/", 
+       device='tiff', dpi=300, width=13, height=10, units=c("cm"), compression="lzw")

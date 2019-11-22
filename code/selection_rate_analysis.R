@@ -109,17 +109,17 @@ CRISPR_fitness_plots <- ggplot(aes(x=Treatment, y=r),
   geom_hline(yintercept=0, linetype=2, size=1)+
   #stat_summary(fun.y="mean", geom="point", colour="red")+
   #facet_wrap(~Timepoint, scales="free", labeller = timepoint_labeller, ncol=2)+
-  labs(y="Selection rate of\nresistant CRISPR clones", x="CRISPR allele diversity")+
+  labs(y="Selection rate of\nall CRISPR clones", x="CRISPR diversity")+
   scale_x_discrete(labels = treatment_list)+
   scale_colour_manual(values=pal,
                       name=c("Days\npost-infection"))+
   theme_cowplot()+
-  theme(axis.title = element_text(face="bold", size=16),
-        panel.grid.major = element_line(colour="lightgrey", size=.25),
+  theme(axis.title = element_text(face="bold", size=10),
+        #panel.grid.major = element_line(colour="lightgrey", size=.25),
         strip.text = element_text(face="bold"),
-        axis.text.x = element_text(size=10),
-        legend.text = element_text(size=12),
-        legend.title = element_text(face="bold", size=16),
+        axis.text = element_text(size=8),
+        legend.text = element_text(size=10),
+        legend.title = element_text(face="bold", size=10),
         legend.title.align = 0.5,
         legend.key.height = unit(1, "cm"),
         legend.key.width = unit(1, "cm"),
@@ -137,20 +137,20 @@ BIM_fitness_plots <- ggplot(aes(x=Treatment, y=r),
   geom_point(aes(colour=Timepoint), alpha=0.5, pch=21, position=pd)+
   geom_hline(yintercept=0, linetype=2, size=1)+
   #stat_summary(fun.y="mean", geom="point", colour="red")+
-  labs(y="Selection rate of\nsusceptible CRISPR clone", x="CRISPR allele diversity")+
+  labs(y="Selection rate of\nsusceptible CRISPR clone", x="CRISPR diversity")+
   scale_x_discrete(labels= treatment_list[3:7])+
   scale_colour_manual(values=pal,
                       name=c("Days\npost-infection"))+
   theme_cowplot()+
-  theme(axis.title = element_text(face="bold", size=16),
-        panel.grid.major = element_line(colour="lightgrey", size=.25),
+  theme(axis.title = element_text(face="bold", size=10),
+        #panel.grid.major = element_line(colour="lightgrey", size=.25),
         strip.text = element_text(face="bold"),
-        axis.text.x = element_text(size=10),
-        legend.text = element_text(size=12),
-        legend.title = element_text(face="bold", size=16),
+        axis.text = element_text(size=8),
+        legend.text = element_text(size=10),
+        legend.title = element_text(face="bold", size=10),
         legend.title.align = 0.5,
-        legend.key.height = unit(1, "cm"),
-        legend.key.width = unit(1, "cm"),
+        legend.key.height = unit(.4, "cm"),
+        legend.key.width = unit(.4, "cm"),
         legend.key = element_rect(fill="grey95"))+
   NULL
 last_plot()
@@ -158,12 +158,12 @@ last_plot()
 FigS3 <- plot_grid(CRISPR_fitness_plots+
                      theme(legend.position = "none"), 
                    BIM_fitness_plots, ncol=1, 
-                   labels = c("A", "B"), label_size = 20, label_colour = "blue")
+                   labels = c("A", "B"), label_size = 10)
 
 
 last_plot()
-ggsave("Figure_S3.png", FigS2, path="./figs/",
-       device="png",dpi=600, width=18, height = 20, units=c("cm"))
+ggsave("Figure_S3.tif", FigS3, path="./figs/",
+       device="tiff",dpi=300, width=12, height = 13, units=c("cm"), compression="lzw")
 
 
 #### ---- lme4 CRISPR models ---- ####
@@ -757,6 +757,23 @@ write.csv(x = selection_rate_summary, file = "./summary_data/selection_rate_summ
 
 
 #### ---- Summary figure (plot_grid version) ---- ####
+raw_CRISPR <- d %>% 
+  mutate(Treatment = fct_recode(Treatment, "1-clone\n(ancestral phage)" = "1-clone_control",
+                                "24-clone\n(ancestral phage)" = "24-clone_control")) %>% 
+  filter(Timepoint!="0") %>% 
+  filter(Strain=="rCRISPR")
+raw_BIM <- d %>% 
+  mutate(Treatment = fct_recode(Treatment, "1-clone\n(ancestral phage)" = "1-clone_control",
+                                "24-clone\n(ancestral phage)" = "24-clone_control")) %>% 
+  filter(Timepoint!="0") %>% 
+  filter(Strain=="rBIM")
+
+CRISPR.coefs <- read.csv("./summary_data/selection_rate_summary.csv") %>% 
+  filter(strain=="CRISPR")
+BIM.coefs <- read.csv("./summary_data/selection_rate_summary.csv") %>% 
+  filter(strain=="BIM") %>% 
+  filter(term%in%c("3-clone", "6-clone", "12-clone", "24-clone", "24-clone\n(ancestral phage)"))
+
 CRISPR.coefs$term %<>% relevel(ref="24-clone\n(ancestral phage)")
 CRISPR.coefs$term %<>% relevel(ref="24-clone")
 CRISPR.coefs$term %<>% relevel(ref="12-clone")
@@ -770,46 +787,53 @@ BIM.coefs$term %<>% relevel(ref="24-clone")
 BIM.coefs$term %<>% relevel(ref="12-clone")
 BIM.coefs$term %<>% relevel(ref="6-clone")
 BIM.coefs$term %<>% relevel(ref="3-clone")
-BIM.coefs$term %<>% relevel(ref="1-clone\n(ancestral phage)")
-BIM.coefs$term %<>% relevel(ref="1-clone")
 
 CRISPR.plot <- ggplot(aes(x=term, y=mean), data=CRISPR.coefs)+
-  labs(x="CRISPR allele diversity", y="Selection rate")+
+  labs(x="CRISPR diversity", y="Selection rate of\nall CRISPR clones")+
   geom_hline(yintercept = 0, linetype=2, colour="black")+
-  geom_errorbar(aes(ymin=l.67, ymax=h.67), width=0, size=4, alpha=0.5)+
-  geom_errorbar(aes(ymin=l.89, ymax=h.89), width=0, size=2, alpha=0.5)+
+  # geom_jitter(aes(y=r, x=Treatment), data=raw_CRISPR,
+  #             width=0.2, pch=21, alpha=0.5, size=0.8)+
+  geom_errorbar(aes(ymin=l.67, ymax=h.67), width=0, size=3, alpha=0.5)+
+  geom_errorbar(aes(ymin=l.89, ymax=h.89), width=0, size=1.5, alpha=0.5)+
   geom_errorbar(aes(ymin=l.95, ymax=h.95), width=0)+
   geom_point(aes(position=term), pch=21, fill="white", 
-             colour="black", size=2)+
+             colour="black", size=1.5)+
   cowplot::theme_cowplot()+
-  theme(axis.text = element_text(size=12),
-        axis.title = element_text(face="bold", size=16),
-        strip.text = element_text(face="bold"),
+  theme(axis.text = element_text(size=8),
+        axis.title = element_text(face="bold", size=10),
+        strip.text = element_text(face="bold", size=10),
         strip.background = element_rect(size=11))+
   coord_cartesian(ylim=c(-2.612728, 1.235529))+
   NULL
 
+last_plot()
+
 BIM.plot <- ggplot(aes(x=term, y=mean), data=BIM.coefs)+
-  labs(x="CRISPR allele diversity", y="Selection rate")+
+  labs(x="CRISPR diversity", y="Selection rate of\nsusceptible CRISPR clones")+
   geom_hline(yintercept = 0, linetype=2, colour="black")+
-  geom_errorbar(aes(ymin=l.67, ymax=h.67), width=0, size=4, alpha=0.5)+
-  geom_errorbar(aes(ymin=l.89, ymax=h.89), width=0, size=2, alpha=0.5)+
+   # geom_jitter(aes(y=r, x=Treatment), data=raw_BIM,
+   #             width=0.2, pch=21, alpha=0.5, size=0.8)+
+  geom_errorbar(aes(ymin=l.67, ymax=h.67), width=0, size=3, alpha=0.5)+
+  geom_errorbar(aes(ymin=l.89, ymax=h.89), width=0, size=1.5, alpha=0.5)+
   geom_errorbar(aes(ymin=l.95, ymax=h.95), width=0)+
   geom_point(aes(position=term), pch=21, fill="white", 
-             colour="black", size=2)+
+             colour="black", size=1.5)+
   cowplot::theme_cowplot()+
-  theme(axis.text = element_text(size=12),
-        axis.title = element_text(face="bold", size=16),
+  theme(axis.text = element_text(size=8),
+        axis.title = element_text(face="bold", size=10),
         strip.text = element_text(face="bold"),
         strip.background = element_rect(size=11))+
+  coord_cartesian(ylim=c(-2.612728, 1.235529))+
   NULL
+last_plot()
 
-Fig_3 <- plot_grid(CRISPR.plot+xlab("")+theme(axis.text.x = element_blank()),
-                   BIM.plot, nrow=2,
-                   labels = c("A", "B"), label_size = 20)
+# Fig_S3 <- plot_grid(CRISPR.plot+xlab(""),
+#                    BIM.plot, nrow=2, rel_heights = c(1,1),
+#                    labels = c("A", "B"), label_size = 10)
+last_plot()
 
-ggsave("Figure_3.png", Fig_3, path="./figs/", device="png",
-               dpi=600, width=28, height=25, units=c("cm"))
+# ggsave("Figure_S3.tif", Fig_S3, path="./figs/", device="tiff", compression="lzw",
+#                dpi=300, width=12, height=12, units=c("cm"))
 
 
 

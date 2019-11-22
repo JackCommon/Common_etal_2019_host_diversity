@@ -40,8 +40,8 @@ treatment_names <- list(
   "6-clone" = "6-clone",
   "12-clone" = "12-clone",
   "24-clone" = "24-clone",
-  "1-clone_control" = "1-clone (ancestral phage)",
-  "24-clone_control" = "24-clone (ancestral phage)"
+  "1-clone_control" = "1-clone\n(ancestral phage)",
+  "24-clone_control" = "24-clone\n(ancestral phage)"
 )
 
 treatment_labeller <- function(variable, value) {
@@ -110,23 +110,22 @@ host_density_fig <- ggplot(aes(y=CFU+1, x=Timepoint, group=Replicate_2),
                          data=host)+
   
   #geom_point(stat='identity')+
-  geom_line(stat='identity', aes(colour=Strain))+
-  facet_wrap(~Treatment, labeller = treatment_labeller)+
+  geom_line(stat='identity', aes(colour=Strain), size=.3)+
+  facet_wrap(~Treatment, labeller = treatment_labeller, scale="free_x")+
   
   labs(x="Days post-infection", y=expression(bold("Host density (Cfu ml"*{}^{-1}*")")))+
   #ggtitle("Density of CRISPR and SM clones ")+
   
   cowplot::theme_cowplot()+
-  theme(plot.title = element_text(face="bold", hjust=0, size = 16),
-        axis.title = element_text(face="bold", size=16),
-        strip.text = element_text(face='bold', size=14),
-        axis.text = element_text(size=12),
-        legend.text = element_text(size=12),
-        legend.title = element_text(face="bold", size=16),
-        legend.title.align = 0.5,
-        legend.key.height = unit(1, "cm"),
-        legend.key.width = unit(1, "cm"),
-        legend.key = element_rect(fill="grey95"))+
+  theme(plot.title = element_text(face="bold", hjust=0, size = 10),
+        axis.title = element_text(face="bold", size=10),
+        axis.text = element_text(size=8),
+        axis.text.x = element_text(margin=margin(0,0,0,0,"pt")),
+        legend.text = element_text(size=8),
+        strip.text.x = element_text(face='bold', size=8, margin=margin(1.6,0,1.6,0, "pt")),
+        strip.background = element_rect(fill="transparent", colour=NA),
+        legend.title = element_text(face="bold", size=8),
+        legend.title.align = 0.5)+
   
   scale_y_continuous(breaks=c(seq(0,12,1)))+
   #coord_cartesian(ylim=c(0, 12))+
@@ -134,12 +133,13 @@ host_density_fig <- ggplot(aes(y=CFU+1, x=Timepoint, group=Replicate_2),
                      breaks = trans_breaks('log10', function(x) 10^x),
                      labels = trans_format('log10', math_format(10^.x)))+
   scale_colour_manual(values=pal,
-                      labels=c("Surface mutant\n(PA14 ∆pilA)", "Resistant\nCRISPR clones",
+                      labels=c("Surface mutant\n(PA14 ∆pilA)", "All CRISPR clones",
                                "Susceptible\nCRISPR clones"),
                       name=c("Host immunity"))+
    NULL
 # quartz()
-# last_plot()
+last_plot()
 
-ggsave("Figure_S4.png", host_density_fig, path="./figs/", 
-              device="png", dpi=600, width=28, height = 20, units = c("cm"))
+ggsave("Figure_S3.tif", host_density_fig, path="./figs/", compression="lzw",
+              device="tiff", dpi=300, width=14, height = 11, units = c("cm"))
+
